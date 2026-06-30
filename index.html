@@ -535,7 +535,11 @@
           </div>
           <div>
             <div style="font-size:10px;font-weight:700;color:var(--gold-dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;padding-bottom:3px;border-bottom:1px solid var(--border-subtle);">スペシャルサンクス</div>
-            <div style="font-size:12px;color:var(--text-muted);padding:4px 0;line-height:1.8;">随時追加予定！</div>
+            <div style="font-size:12px;color:var(--text-muted);padding:4px 0;line-height:1.8;">
+              <span style="color:var(--text-primary);">店舗様</span><br>
+              カードショップAce様<br>
+              リブストック様
+            </div>
           </div>
         </div>
       </div>
@@ -1711,10 +1715,13 @@ function setupCardDropZone(){
     const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith("image/"));
     if(!files.length) return;
     files.sort((a,b) => a.name.localeCompare(b.name));
-    files.forEach(f => {
+    const promises = files.map(f => new Promise((resolve) => {
       const r = new FileReader();
-      r.onload = ev => addCardWithImg(f.name.replace(/\.[^.]+$/,""), ev.target.result);
+      r.onload = ev => resolve({name: f.name.replace(/\.[^.]+$/,""), dataUrl: ev.target.result});
       r.readAsDataURL(f);
+    }));
+    Promise.all(promises).then(results => {
+      results.forEach(({name, dataUrl}) => addCardWithImg(name, dataUrl));
     });
   });
 }
@@ -1723,10 +1730,14 @@ function loadCardFiles(inp){
   const files = Array.from(inp.files).filter(f => f.type.startsWith("image/"));
   if(!files.length) return;
   files.sort((a,b) => a.name.localeCompare(b.name));
-  files.forEach(f => {
+  // ファイルを順番通りに読み込む（非同期の完了順ではなく選択順を保持）
+  const promises = files.map(f => new Promise((resolve) => {
     const r = new FileReader();
-    r.onload = ev => addCardWithImg(f.name.replace(/\.[^.]+$/,""), ev.target.result);
+    r.onload = ev => resolve({name: f.name.replace(/\.[^.]+$/,""), dataUrl: ev.target.result});
     r.readAsDataURL(f);
+  }));
+  Promise.all(promises).then(results => {
+    results.forEach(({name, dataUrl}) => addCardWithImg(name, dataUrl));
   });
   inp.value = "";
 }
