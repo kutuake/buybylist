@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>バイバイリスト - カード買取表・価格表メーカー</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACiklEQVR42mNkIAJwc4v8ZxiC4OvXN4yE1DAOR4+TEhCMw9njxAQE00jxPC6/MY0Uz+PyI9NI8jw2vzIxjHDANNJiHz0VsFDb4Lt75WjueGXnR1Qzi5FasU8Pj9MiIEZ8GUCVFIAc+xoer2ju6Bs7xKiWCkZrgdEAGA2A0QAY0YCFloaHuHMytBTyoojtPvaTIbfpI1b1zQW8DKEenChiffO/MMxa+W1opoC1u74znL/2G0XM1YqdwcGMDUOtvgYrQ4g7qufvPf7LMH/t96GbBf7/Z2BomPyZ4e9fVPGaLF4GDjbE2AQzEwNDQy4vAyPacEXT1M8Mv//8H9plwM37fxiWbEJNwjISzAyZUVxwfow/F4OmMmpu3LL/B8OJC7+GRyE4adFXhldv/6GIJYVwMSjJMjOICTMx5MZyo8h9+fafoWPWl+FTC3z9jukhVhZGhvocXobKdF4GHi7UtD9h4ReGN+//Da9qcNvBHwzHzqEmaXN9NgZPO3YUsWt3/zAs3/ydXs6ibTUoJ8XMsGueMEl6tJRZGK5uQ3R2oovfM5y9+nu0ITQkU8CjZ3+xdo/ntgowWBuzYST94Jx3DP/pPDg3IClg68EfGGI7Dv2gu+cHVRlQlMjDUJTIgyE+WgYMxzIg0JWDob2Yj66dntEUMBoAowEwGgCjAUDvWgAXWL/7B8P63T9GU8BoAIwGwGgAjAbAaACMBsAwbQcgL2KgFqDF4gumoeJ5Wpk7WgaMBgANAK0WStHCXJoVgvRYLUYNMLpQcqSXAYzUXig9YtcKj9YCQzUAiNlaNlzB169vGEdTACwkRmLsj5YByAEwklIBsl+ZcEmMBM9jzQLDORCw+W108zQxBgzn7fMA8X/h8dKgFJwAAAAASUVORK5CYII=">
 <meta name="description" content="トレカ・カードゲームの買取表・価格表をかんたんに作れる無料Webツール。カード画像の追加・複数ページ対応・JPG/PNG保存・ウォーターマーク対応。">
 <meta name="keywords" content="買取表,価格表,トレカ,カードゲーム,ポスター作成,無料,カード買取,価格表メーカー">
 <meta property="og:title" content="バイバイリスト - カード買取表・価格表メーカー">
@@ -479,6 +480,27 @@ button:focus-visible, a:focus-visible, select:focus-visible{
                   <option value="transparent">◻ 透明</option>
                 </select>
               </div>
+              <div style="margin-bottom:6px;">
+                <label class="lbl">値段枠の形</label>
+                <select id="price-box-shape" onchange="onPriceBoxChange()">
+                  <option value="square" selected>▭ 四角（デフォルト）</option>
+                  <option value="rounded">▢ 角丸</option>
+                  <option value="pill">⬭ ピル型（円風）</option>
+                  <option value="underline">▁ 下線のみ</option>
+                  <option value="none">　枠なし</option>
+                </select>
+              </div>
+              <div style="margin-bottom:6px;">
+                <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-secondary);cursor:pointer;margin-bottom:4px;">
+                  <input type="checkbox" id="price-box-custom" onchange="onPriceBoxChange()" style="width:13px;height:13px;accent-color:var(--gold);margin:0;">
+                  値段枠の色を自分で選ぶ
+                </label>
+                <div id="price-box-color-row" style="display:none;align-items:center;gap:6px;">
+                  <input type="color" id="price-box-color" value="#060610" onchange="onPriceBoxChange()"
+                    style="width:32px;height:26px;padding:1px;border:1px solid var(--border-default);border-radius:var(--radius-xs);background:var(--surface-3);cursor:pointer;flex-shrink:0;margin:0;">
+                  <input type="text" id="price-box-color-txt" value="#060610" placeholder="#rrggbb" oninput="onPriceBoxColorTxt(this.value)" style="flex:1;margin:0;font-size:11px;">
+                </div>
+              </div>
               <!-- ⬛ カードオーバーレイ（黒塗り） -->
               <div style="border-top:1px solid var(--border-subtle);margin:10px 0 8px;padding-top:10px;">
                 <label class="lbl" style="margin-bottom:5px;">⬛ カード黒塗り／オーバーレイ</label>
@@ -916,9 +938,21 @@ button:focus-visible, a:focus-visible, select:focus-visible{
                 <input type="range" id="fsize-price" min="8" max="72" value="22" style="flex:1;accent-color:var(--gold);margin:0;" oninput="onFontSize(this,'fsize-price')">
                 <span id="fsize-price-lbl" style="font-size:10px;color:var(--text-muted);width:36px;text-align:right;">auto</span>
               </div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:7px;">
+                <label class="lbl" style="margin:0;white-space:nowrap;">通貨</label>
+                <select id="price-currency" onchange="onCurrencyChange(this.value)" style="flex:1;margin:0;font-size:11px;">
+                  <option value="¥" selected>¥ 円 (JPY)</option>
+                  <option value="$">$ ドル (USD)</option>
+                  <option value="€">€ ユーロ (EUR)</option>
+                  <option value="£">£ ポンド (GBP)</option>
+                  <option value="₩">₩ ウォン (KRW)</option>
+                  <option value="元">元 人民元 (CNY)</option>
+                  <option value="">記号なし</option>
+                </select>
+              </div>
               <label style="display:flex;align-items:center;gap:6px;margin-top:7px;font-size:11px;color:var(--text-secondary);cursor:pointer;">
                 <input type="checkbox" id="price-strip-chk" onchange="onPriceStrip(this)" style="width:13px;height:13px;accent-color:var(--gold);margin:0;">
-                ¥ とカンマを省略する（¥10,000 → 10000）
+                通貨記号とカンマを省略する（¥10,000 → 10000）
               </label>
               <label style="display:flex;align-items:center;gap:6px;margin-top:5px;font-size:11px;color:var(--text-secondary);cursor:pointer;">
                 <input type="checkbox" id="price-man-chk" onchange="onManNotation(this)" style="width:13px;height:13px;accent-color:var(--gold);margin:0;">
@@ -1783,6 +1817,8 @@ function buildProjectData(){
       overlay: {...overlay},
       priceMan: _allowManNotation,
       priceStrip: _allowPriceStrip,
+      currency: _currencySymbol,
+      priceBox: {...priceBox},
       fonts: {
         subtitle:  [document.getElementById("font-subtitle")?.value,  document.getElementById("fsize-subtitle")?.value],
         shop:      [document.getElementById("font-shop")?.value,      document.getElementById("fsize-shop")?.value],
@@ -1832,6 +1868,12 @@ function applyProjectData(data){
     const chk2 = document.getElementById("price-strip-chk");
     if(chk2) chk2.checked = _allowPriceStrip;
   }
+  if(s.currency != null){
+    _currencySymbol = s.currency;
+    const cs = document.getElementById("price-currency");
+    if(cs) cs.value = _currencySymbol;
+  }
+  if(s.priceBox) applyPriceBoxState(s.priceBox);
   // フォント設定の復元
   if(s.fonts){
     const restoreFont = (key, selId, sizeId) => {
@@ -2018,7 +2060,12 @@ function onManNotation(chk){
   _allowManNotation = chk.checked;
   scheduleRender();
 }
-let _allowPriceStrip = false;  // ¥・カンマの自動省略（デフォルトOFF＝常にフル表記）
+let _currencySymbol = "¥";  // 通貨記号（¥ / $ / € / £ / ₩ / 元 / なし）
+function onCurrencyChange(v){
+  _currencySymbol = v;
+  scheduleRender();
+}
+let _allowPriceStrip = false;  // 通貨記号・カンマの自動省略（デフォルトOFF＝常にフル表記）
 function onPriceStrip(chk){
   _allowPriceStrip = chk.checked;
   scheduleRender();
@@ -2087,6 +2134,7 @@ function openCardWindow(){
   if(!_cardWin){ alert("ポップアップがブロックされました。ブラウザの設定でこのサイトのポップアップを許可してください。"); return; }
   _cardWin.document.write(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8">
 <title>カード一覧 - バイバイリスト</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACiklEQVR42mNkIAJwc4v8ZxiC4OvXN4yE1DAOR4+TEhCMw9njxAQE00jxPC6/MY0Uz+PyI9NI8jw2vzIxjHDANNJiHz0VsFDb4Lt75WjueGXnR1Qzi5FasU8Pj9MiIEZ8GUCVFIAc+xoer2ju6Bs7xKiWCkZrgdEAGA2A0QAY0YCFloaHuHMytBTyoojtPvaTIbfpI1b1zQW8DKEenChiffO/MMxa+W1opoC1u74znL/2G0XM1YqdwcGMDUOtvgYrQ4g7qufvPf7LMH/t96GbBf7/Z2BomPyZ4e9fVPGaLF4GDjbE2AQzEwNDQy4vAyPacEXT1M8Mv//8H9plwM37fxiWbEJNwjISzAyZUVxwfow/F4OmMmpu3LL/B8OJC7+GRyE4adFXhldv/6GIJYVwMSjJMjOICTMx5MZyo8h9+fafoWPWl+FTC3z9jukhVhZGhvocXobKdF4GHi7UtD9h4ReGN+//Da9qcNvBHwzHzqEmaXN9NgZPO3YUsWt3/zAs3/ydXs6ibTUoJ8XMsGueMEl6tJRZGK5uQ3R2oovfM5y9+nu0ITQkU8CjZ3+xdo/ntgowWBuzYST94Jx3DP/pPDg3IClg68EfGGI7Dv2gu+cHVRlQlMjDUJTIgyE+WgYMxzIg0JWDob2Yj66dntEUMBoAowEwGgCjAUDvWgAXWL/7B8P63T9GU8BoAIwGwGgAjAbAaACMBsAwbQcgL2KgFqDF4gumoeJ5Wpk7WgaMBgANAK0WStHCXJoVgvRYLUYNMLpQcqSXAYzUXig9YtcKj9YCQzUAiNlaNlzB169vGEdTACwkRmLsj5YByAEwklIBsl+ZcEmMBM9jzQLDORCw+W108zQxBgzn7fMA8X/h8dKgFJwAAAAASUVORK5CYII=">
 <style>
 :root{--gold:#e8c832;--s0:#050508;--s1:#0b0b14;--s2:#10101c;--s3:#161624;--bd:#222236;--bds:#2e2e4a;--tp:#eaeaf6;--ts:#8888aa;--tm:#454560;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -2645,6 +2693,66 @@ function switchCreditTab(tab){
   }
 }
 
+
+// ===== 値段枠のスタイル（形・カスタム色） =====
+const priceBox = { shape:"square", custom:false, color:"#060610" };
+
+function onPriceBoxChange(){
+  priceBox.shape  = document.getElementById("price-box-shape")?.value ?? "square";
+  priceBox.custom = document.getElementById("price-box-custom")?.checked ?? false;
+  priceBox.color  = document.getElementById("price-box-color")?.value ?? "#060610";
+  const row = document.getElementById("price-box-color-row");
+  if(row) row.style.display = priceBox.custom ? "flex" : "none";
+  scheduleRender();
+}
+function onPriceBoxColorTxt(val){
+  if(!/^#[0-9a-fA-F]{6}$/.test(val)) return;
+  const pick = document.getElementById("price-box-color");
+  if(pick) pick.value = val;
+  onPriceBoxChange();
+}
+function applyPriceBoxState(o){
+  if(!o) return;
+  Object.assign(priceBox, o);
+  const sh = document.getElementById("price-box-shape");
+  const ck = document.getElementById("price-box-custom");
+  const pc = document.getElementById("price-box-color");
+  const pt = document.getElementById("price-box-color-txt");
+  if(sh) sh.value = priceBox.shape;
+  if(ck) ck.checked = priceBox.custom;
+  if(pc) pc.value = priceBox.color;
+  if(pt) pt.value = priceBox.color;
+  const row = document.getElementById("price-box-color-row");
+  if(row) row.style.display = priceBox.custom ? "flex" : "none";
+}
+function _applyPriceBoxStyle(){
+  // 全ページの値段枠に形・カスタム色を適用（_fitPricesの後に呼ばれる）
+  document.querySelectorAll("#pages-container .p-price-block").forEach(pb => {
+    // 形
+    if(priceBox.shape === "rounded"){
+      pb.style.borderRadius = "6px";
+      pb.style.borderBottom = "";
+    } else if(priceBox.shape === "pill"){
+      pb.style.borderRadius = "999px";
+      pb.style.borderBottom = "";
+    } else if(priceBox.shape === "underline"){
+      pb.style.borderRadius = "0";
+      pb.style.background = "transparent";
+      pb.style.borderBottom = "2px solid " + (priceBox.custom ? priceBox.color : "var(--gold)");
+    } else if(priceBox.shape === "none"){
+      pb.style.borderRadius = "0";
+      pb.style.background = "transparent";
+      pb.style.borderBottom = "";
+    } else {
+      pb.style.borderRadius = "0";
+      pb.style.borderBottom = "";
+    }
+    // 色（下線・枠なし以外でカスタム時）
+    if(priceBox.custom && priceBox.shape !== "underline" && priceBox.shape !== "none"){
+      pb.style.background = priceBox.color;
+    }
+  });
+}
 function scheduleRender(){
   clearTimeout(renderTimer);
   const delay = parseInt(appSettings.delay) || 300;
@@ -2856,6 +2964,11 @@ function addLogoDragEl(lid, dataUrl){
     if(e.target === rh) return;
     startElDrag(e, lid);
   });
+  // スマホ：タッチでのロゴ移動に対応（passive:false でスクロールより優先）
+  wrap.addEventListener("touchstart", e => {
+    if(e.target === rh) return;
+    startElDrag(e, lid);
+  }, {passive:false});
 
   function beginResize(startClientX, startClientY, isTouch){
     const startW = elPos[lid].w || 220;
@@ -2979,12 +3092,7 @@ function setupCardDropZone(){
     zone.classList.remove("drag-active");
     const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith("image/"));
     if(files.length){
-      files.sort((a,b) => a.name.localeCompare(b.name));
-      files.forEach(f => {
-        const r = new FileReader();
-        r.onload = ev => addCardWithImg(f.name.replace(/\.[^.]+$/,""), ev.target.result);
-        r.readAsDataURL(f);
-      });
+      _loadImageFilesInOrder(files);
       return;
     }
     // ブラウザ上の画像（Google画像検索など）のドロップ：ファイルではなくURL/HTMLで渡される
@@ -3026,15 +3134,38 @@ function _handleUrlDrop(dt){
     });
 }
 
-function loadCardFiles(inp){
-  const files = Array.from(inp.files).filter(f => f.type.startsWith("image/"));
-  if(!files.length) return;
-  files.sort((a,b) => a.name.localeCompare(b.name));
-  files.forEach(f => {
+function _loadImageFilesInOrder(fileList){
+  // 複数画像の一括取り込み：全ファイルの読み込み・デコード完了を待ってから
+  // 名前の自然順（IMG_2 → IMG_10 を正しく並べる）で一括追加する。
+  // 従来は読み込みが「完了した順」に追加されるため、PC・スマホとも順番が乱れていた
+  const list = Array.from(fileList).filter(f => f.type.startsWith("image/"));
+  if(!list.length) return;
+  list.sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric:true, sensitivity:"base"}));
+  Promise.all(list.map(f => new Promise(resolve => {
     const r = new FileReader();
-    r.onload = ev => addCardWithImg(f.name.replace(/\.[^.]+$/,""), ev.target.result);
+    r.onload = ev => {
+      const img = new Image();
+      img.onload  = () => resolve({ name: f.name.replace(/\.[^.]+$/,""), dataUrl: ev.target.result, w: img.naturalWidth, h: img.naturalHeight });
+      img.onerror = () => resolve(null);
+      img.src = ev.target.result;
+    };
+    r.onerror = () => resolve(null);
     r.readAsDataURL(f);
+  }))).then(results => {
+    const ok = results.filter(Boolean);
+    if(!ok.length) return;
+    pushUndo();
+    ok.forEach(it => {
+      if(cardAspect === null) cardAspect = it.w / it.h;
+      uid++;
+      cards.push({ _id: uid, name: it.name, price: "", img: it.dataUrl, ox: 50, oy: 50 });
+    });
+    renderEditorList();
+    scheduleRender();
   });
+}
+function loadCardFiles(inp){
+  _loadImageFilesInOrder(inp.files);
   inp.value = "";
 }
 
@@ -3161,7 +3292,7 @@ function _toHalfWidthDigits(str){
   return String(str || "").replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
 }
 function sanitizePrice(val){
-  return _toHalfWidthDigits(val).replace(/[¥￥円,，\s]/g,"").trim();
+  return _toHalfWidthDigits(val).replace(/[¥￥円$€£₩元,，\s]/g,"").trim();
 }
 
 function onCardBorderColorTxt(val){
@@ -3503,11 +3634,12 @@ function _fitPrices(){
     .filter(el => el.textContent && el.parentElement);
   if(!els.length) return;
 
-  els.forEach(el => { el.parentElement.style.padding = "3px 2px 4px"; });
+  const _sidePad = priceBox.shape === "pill" ? "8px" : "2px";
+  els.forEach(el => { el.parentElement.style.padding = `3px ${_sidePad} 4px`; });
 
   // カード幅は全カードの中央値（測定ゆらぎ排除）。未確定の瞬間は待って再試行
   const widths = els.map(el => el.parentElement.clientWidth).sort((a,b) => a-b);
-  const avail = widths[Math.floor(widths.length / 2)] - 4;
+  const avail = widths[Math.floor(widths.length / 2)] - (priceBox.shape === "pill" ? 16 : 4);
   const suspicious = avail < 14 || (window._lastGoodAvail && avail < window._lastGoodAvail * 0.6);
   if(suspicious && _fitRetry < 8){
     _fitRetry++;
@@ -3523,9 +3655,10 @@ function _fitPrices(){
   const stage = _allowManNotation ? 3 : (_allowPriceStrip ? 2 : 0);
   const compactTo = (t0) => {
     let t = t0;
-    if(stage >= 1 && t.startsWith("¥")) t = t.slice(1);
+    if(stage >= 1 && _currencySymbol && t.startsWith(_currencySymbol)) t = t.slice(_currencySymbol.length);
     if(stage >= 2) t = t.replace(/,/g, "");
-    if(stage >= 3 && /^\d+$/.test(t)){
+    // 「万」表記は円（¥）のときのみ
+    if(stage >= 3 && _currencySymbol === "¥" && /^\d+$/.test(t)){
       const n = parseInt(t);
       if(n >= 10000 && n % 1000 === 0){
         const man = n / 10000;
@@ -3576,6 +3709,8 @@ function _fitPrices(){
     fs--;
     els.forEach(el => { el.style.fontSize = fs + "px"; });
   }
+
+  _applyPriceBoxStyle();
 
   // デバッグ表示（URLに #debug を付けた時のみ）
   if(location.hash === "#debug"){
@@ -3716,7 +3851,7 @@ function renderPoster(){
 
   page1Cards.forEach((c, i) => {
     const priceNum = parseInt(_toHalfWidthDigits(c.price||"").replace(/[^0-9]/g,""))||0;
-    const priceStr = priceNum ? "¥"+priceNum.toLocaleString() : (c.price?c.price:"");
+    const priceStr = priceNum ? _currencySymbol+priceNum.toLocaleString() : (c.price?c.price:"");
     const ox = c.ox ?? 50;
     const oy = c.oy ?? 50;
     const cid = String(c._id);
@@ -3902,7 +4037,7 @@ function renderPoster(){
 
       pageCards.forEach(c => {
         const priceNum = parseInt(_toHalfWidthDigits(c.price||"").replace(/[^0-9]/g,"")) || 0;
-        const priceStr = priceNum ? "¥"+priceNum.toLocaleString() : (c.price||"");
+        const priceStr = priceNum ? _currencySymbol+priceNum.toLocaleString() : (c.price||"");
         const tile  = document.createElement("div");  tile.className = "p-card";
         tile.setAttribute("data-cid", c._id);
         const frame = document.createElement("div");  frame.className = "p-card-frame";
